@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseArrayPipe,
   Post,
   Put,
 } from '@nestjs/common';
@@ -23,6 +24,15 @@ export class PostsController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.postsService.findOne(id);
+  }
+
+  // Ruta estática declarada antes de las rutas con parámetros dinámicos.
+  @Post('bulk')
+  createBulk(
+    @Body(new ParseArrayPipe({ items: CreatePostDto }))
+    createPostDtos: CreatePostDto[],
+  ) {
+    return this.postsService.createBulk(createPostDtos);
   }
 
   @Post()

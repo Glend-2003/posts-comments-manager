@@ -16,6 +16,16 @@ export class PostsService {
     return createdPost.save();
   }
 
+  async createBulk(createPostDtos: CreatePostDto[]) {
+    const inserted = await this.postModel.insertMany(createPostDtos);
+    return {
+      success: true,
+      message: `${inserted.length} posts insertados correctamente`,
+      count: inserted.length,
+      data: inserted,
+    };
+  }
+
   async findAll(): Promise<Post[]> {
     return this.postModel.find().exec();
   }
