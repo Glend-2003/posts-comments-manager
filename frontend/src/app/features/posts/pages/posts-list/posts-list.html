@@ -1,0 +1,95 @@
+<section class="mx-auto max-w-5xl px-4 py-8">
+  <!-- encabezado/titulo -->
+  <header class="mb-6 flex items-center justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-semibold text-slate-800">Posts</h1>
+      <p class="text-sm text-slate-500">Gestiona las publicaciones y sus comentarios.</p>
+    </div>
+    <button
+      type="button"
+      (click)="addPost()"
+      class="inline-flex items-center gap-2 rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-400"
+    >
+      <span class="text-base leading-none">+</span>
+      Agregar post
+    </button>
+  </header>
+
+  <!-- busqueda de posts -->
+  <div class="mb-4">
+    <input
+      type="search"
+      [value]="search()"
+      (input)="onSearch($any($event.target).value)"
+      placeholder="Buscar por título…"
+      class="w-full rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm text-slate-700 shadow-sm transition placeholder:text-slate-400 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 sm:max-w-xs"
+    />
+  </div>
+
+  <!-- el loading -->
+  @if (loading()) {
+    <div class="flex flex-col items-center justify-center gap-3 rounded-xl border border-slate-200 bg-white py-16 text-slate-500">
+      <span class="h-8 w-8 animate-spin rounded-full border-2 border-slate-300 border-t-slate-700"></span>
+      <span class="text-sm">Cargando posts…</span>
+    </div>
+  } @else if (filteredPosts().length === 0) {
+    <!--en caso de vacio se diferencia entre "sin resultados de busqueda" de "no hay posts" -->
+    <div class="rounded-xl border border-dashed border-slate-300 bg-white py-16 text-center">
+      @if (search().trim().length > 0) {
+        <p class="text-sm font-medium text-slate-600">No se encontraron resultados</p>
+        <p class="mt-1 text-sm text-slate-400">Prueba con otro término de búsqueda.</p>
+      } @else {
+        <p class="text-sm font-medium text-slate-600">No hay posts todavía</p>
+        <p class="mt-1 text-sm text-slate-400">Crea el primero con “Agregar post”.</p>
+      }
+    </div>
+  } @else {
+    <!-- tabla de posts -->
+    <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+      <table class="min-w-full divide-y divide-slate-200 text-sm">
+        <thead class="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+          <tr>
+            <th class="px-4 py-3">Título</th>
+            <th class="px-4 py-3">Autor</th>
+            <th class="px-4 py-3">Fecha</th>
+            <th class="px-4 py-3 text-right">Acciones</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          @for (post of filteredPosts(); track post._id) {
+            <tr class="transition hover:bg-slate-50">
+              <td class="px-4 py-3 font-medium text-slate-800">{{ post.title }}</td>
+              <td class="px-4 py-3 text-slate-600">{{ post.author }}</td>
+              <td class="px-4 py-3 text-slate-500">{{ post.createdAt | date: 'dd MMM yyyy, HH:mm' }}</td>
+              <td class="px-4 py-3">
+                <div class="flex items-center justify-end gap-2">
+                  <button
+                    type="button"
+                    (click)="viewPost(post)"
+                    class="rounded-md px-2.5 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-100"
+                  >
+                    Ver
+                  </button>
+                  <button
+                    type="button"
+                    (click)="editPost(post)"
+                    class="rounded-md px-2.5 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-100"
+                  >
+                    Editar
+                  </button>
+                  <button
+                    type="button"
+                    (click)="deletePost(post)"
+                    class="rounded-md px-2.5 py-1.5 text-xs font-medium text-red-600 transition hover:bg-red-50"
+                  >
+                    Eliminar
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>
