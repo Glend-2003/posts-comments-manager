@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { Comment, CommentDocument } from '../comments/schemas/comment.schema';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { Post, PostDocument } from './schemas/post.schema';
@@ -9,6 +10,8 @@ import { Post, PostDocument } from './schemas/post.schema';
 export class PostsService {
   constructor(
     @InjectModel(Post.name) private readonly postModel: Model<PostDocument>,
+    @InjectModel(Comment.name)
+    private readonly commentModel: Model<CommentDocument>,
   ) {}
 
   async create(createPostDto: CreatePostDto): Promise<Post> {
@@ -48,11 +51,22 @@ export class PostsService {
     return updatedPost;
   }
 
-  async remove(id: string): Promise<Post> {
+  async remove(id: string) {
+    // 1.se borra el post de forma atomica y obtenemos el documento borrado, si no existe, lanzamos 404 ANTES de tocar los comentarios y no dispara un deleteMany
+
     const deletedPost = await this.postModel.findByIdAndDelete(id).exec();
     if (!deletedPost) {
       throw new NotFoundException(`Post with id "${id}" not found`);
     }
-    return deletedPost;
+
+    // 2.Una vez confirmado que el post existía y se borró, eliminamos en cascada todos sus comentarios
+    const { deletedCount } = await this.commentModel
+      .deleteMany({ postId: id })
+      .exec();
+
+    return {
+      message: 'Post eliminado',
+      deletedComments: deletedCount,
+    };
   }
 }
