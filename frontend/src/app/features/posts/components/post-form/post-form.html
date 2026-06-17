@@ -1,15 +1,10 @@
 <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-4">
   <!-- Titulo -->
   <div>
-    <label for="title" class="mb-1 block text-sm font-medium text-slate-700">Título</label>
-    <input
-      id="title"
-      type="text"
-      formControlName="title"
-      class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700 shadow-sm transition focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
-    />
+    <label for="title" class="field-label">Título</label>
+    <input id="title" type="text" formControlName="title" class="field" />
     @if (showError('title')) {
-      <p class="mt-1 text-xs text-red-600">
+      <p class="field-error">
         @if (form.get('title')?.errors?.['required']) {
           El título es obligatorio
         } @else if (form.get('title')?.errors?.['minlength']) {
@@ -21,15 +16,10 @@
 
   <!-- Cuerpo -->
   <div>
-    <label for="body" class="mb-1 block text-sm font-medium text-slate-700">Contenido</label>
-    <textarea
-      id="body"
-      rows="4"
-      formControlName="body"
-      class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700 shadow-sm transition focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
-    ></textarea>
+    <label for="body" class="field-label">Contenido</label>
+    <textarea id="body" rows="4" formControlName="body" class="field"></textarea>
     @if (showError('body')) {
-      <p class="mt-1 text-xs text-red-600">
+      <p class="field-error">
         @if (form.get('body')?.errors?.['required']) {
           El contenido es obligatorio
         } @else if (form.get('body')?.errors?.['minlength']) {
@@ -41,32 +31,19 @@
 
   <!-- Autor -->
   <div>
-    <label for="author" class="mb-1 block text-sm font-medium text-slate-700">Autor</label>
-    <input
-      id="author"
-      type="text"
-      formControlName="author"
-      class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700 shadow-sm transition focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
-    />
+    <label for="author" class="field-label">Autor</label>
+    <input id="author" type="text" formControlName="author" class="field" />
     @if (showError('author')) {
-      <p class="mt-1 text-xs text-red-600">El autor es obligatorio</p>
+      <p class="field-error">El autor es obligatorio</p>
     }
   </div>
 
   <!-- Acciones -->
   <div class="flex items-center justify-end gap-2 pt-2">
-    <button
-      type="button"
-      (click)="cancel.emit()"
-      class="rounded-lg px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100"
-    >
+    <button type="button" (click)="cancel.emit()" class="btn-secondary">
       Cancelar
     </button>
-    <button
-      type="submit"
-      [disabled]="form.invalid || saving()"
-      class="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
-    >
+    <button type="submit" [disabled]="form.invalid || saving()" class="btn-primary">
       @if (saving()) {
         Guardando…
       } @else {
