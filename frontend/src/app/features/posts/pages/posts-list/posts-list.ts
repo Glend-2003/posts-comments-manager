@@ -2,11 +2,13 @@ import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angula
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
 import { Router } from '@angular/router';
-import { Subject, catchError, delay, of, switchMap, tap } from 'rxjs';
+import { EMPTY, Subject, catchError, delay, of, switchMap, tap } from 'rxjs';
 
 import { Post } from '../../../../core/models/post.model';
+import { Comment } from '../../../../core/models/comment.model';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { PostsService } from '../../services/posts.service';
+import { CommentsService } from '../../services/comments.service';
 import { Modal } from '../../../../shared/components/modal/modal';
 import { PostForm } from '../../components/post-form/post-form';
 
@@ -17,6 +19,7 @@ import { PostForm } from '../../components/post-form/post-form';
 })
 export class PostsList implements OnInit {
   private readonly postsService = inject(PostsService);
+  private readonly commentsService = inject(CommentsService);
   private readonly notification = inject(NotificationService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
@@ -38,6 +41,9 @@ export class PostsList implements OnInit {
   // estado del modal: si esta abierto y qué post edito (null = crear)
   readonly modalOpen = signal<boolean>(false);
   readonly editingPost = signal<Post | null>(null);
+
+  // evita doble click en eliminar mientras la operación está en curso
+  readonly deleting = signal<boolean>(false);
 
   constructor() {
     // Tuberia reactiva de carga. Se suscribe una sola vez (vive lo que viva el componente, gracias a takeUntilDestroyed) y reacciona a cada reload$.
@@ -83,23 +89,51 @@ export class PostsList implements OnInit {
     this.search.set(value);
   }
 
-  //Elimina un post previa confirmación.
+  // Elimina un post avisando cuantos comentarios tiene
   deletePost(post: Post): void {
-    const confirmado = confirm(`¿Eliminar el post "${post.title}"? Esta acción no se puede deshacer.`);
-    if (!confirmado) {
+    if (this.deleting()) {
       return;
     }
+    this.deleting.set(true);
 
-    this.postsService
-      .deletePost(post._id)
-      .pipe(takeUntilDestroyed(this.destroyRef))
+    //1 contamos los comentarios. Si falla, devolvemos null para caer en el un fallback
+    this.commentsService
+      .getCommentsByPost(post._id)
+      .pipe(
+        catchError(() => of(null)),
+        // 2 montamos el mensaje segun el conteo y pedimos confirmacion, si confirma, encadenamos el borrado; si no, se deja em EMPTY   
+        switchMap((comments) => {
+          const confirmado = confirm(this.buildDeleteMessage(post, comments));
+          if (!confirmado) {
+            return EMPTY;
+          }
+          return this.postsService.deletePost(post._id);
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: () => {
           this.notification.showSuccess('Post eliminado correctamente.');
           this.loadPosts();
+          this.deleting.set(false);
         },
-        error: () => {},
+        error: () => this.deleting.set(false),
+        // se completa sin emitir cuando el usuario cancela 
+        complete: () => this.deleting.set(false),
       });
+  }
+
+  // Mensaje diferenciado: comments null = no se pudo contar
+  private buildDeleteMessage(post: Post, comments: Comment[] | null): string {
+    if (comments === null) {
+      return '¿Seguro que deseas eliminar este post? Sus comentarios asociados también se eliminarán.';
+    }
+    const n = comments.length;
+    if (n === 0) {
+      return `¿Seguro que deseas eliminar el post "${post.title}"? Esta acción no se puede deshacer.`;
+    }
+    const plural = n === 1 ? 'comentario asociado' : 'comentarios asociados';
+    return `El post "${post.title}" tiene ${n} ${plural} que también se eliminarán. ¿Deseas continuar?`;
   }
 
   // abrir modal en modo crear
