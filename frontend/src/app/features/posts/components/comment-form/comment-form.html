@@ -1,0 +1,71 @@
+<form [formGroup]="form" (ngSubmit)="submit()" class="space-y-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+  <div class="grid gap-3 sm:grid-cols-2">
+    <!-- Nombre -->
+    <div>
+      <label for="name" class="mb-1 block text-sm font-medium text-slate-700">Nombre</label>
+      <input
+        id="name"
+        type="text"
+        formControlName="name"
+        class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700 shadow-sm transition focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
+      />
+      @if (showError('name')) {
+        <p class="mt-1 text-xs text-red-600">El nombre es obligatorio</p>
+      }
+    </div>
+
+    <!-- Email -->
+    <div>
+      <label for="email" class="mb-1 block text-sm font-medium text-slate-700">Email</label>
+      <input
+        id="email"
+        type="email"
+        formControlName="email"
+        class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700 shadow-sm transition focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
+      />
+      @if (showError('email')) {
+        <p class="mt-1 text-xs text-red-600">
+          @if (form.get('email')?.errors?.['required']) {
+            El email es obligatorio
+          } @else if (form.get('email')?.errors?.['email']) {
+            Introduce un email válido
+          }
+        </p>
+      }
+    </div>
+  </div>
+
+  <!-- Comentario -->
+  <div>
+    <label for="body" class="mb-1 block text-sm font-medium text-slate-700">Comentario</label>
+    <textarea
+      id="body"
+      rows="3"
+      formControlName="body"
+      class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700 shadow-sm transition focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
+    ></textarea>
+    @if (showError('body')) {
+      <p class="mt-1 text-xs text-red-600">
+        @if (form.get('body')?.errors?.['required']) {
+          El comentario es obligatorio
+        } @else if (form.get('body')?.errors?.['minlength']) {
+          El comentario es demasiado corto
+        }
+      </p>
+    }
+  </div>
+
+  <div class="flex justify-end">
+    <button
+      type="submit"
+      [disabled]="form.invalid || saving()"
+      class="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
+    >
+      @if (saving()) {
+        Enviando…
+      } @else {
+        Comentar
+      }
+    </button>
+  </div>
+</form>

@@ -1,6 +1,7 @@
 import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
+import { Router } from '@angular/router';
 import { Subject, catchError, delay, of, switchMap, tap } from 'rxjs';
 
 import { Post } from '../../../../core/models/post.model';
@@ -18,6 +19,7 @@ export class PostsList implements OnInit {
   private readonly postsService = inject(PostsService);
   private readonly notification = inject(NotificationService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly router = inject(Router);
 
   // === Signals - Nombres exactos
   readonly posts = signal<Post[]>([]);
@@ -123,6 +125,8 @@ export class PostsList implements OnInit {
     this.loadPosts();
   }
 
-  // TODO: navegar a la pagina de detalle, para proxima funcion
-  viewPost(post: Post): void {}
+  // navega al detalle del post
+  viewPost(post: Post): void {
+    this.router.navigate(['/posts', post._id]);
+  }
 }
