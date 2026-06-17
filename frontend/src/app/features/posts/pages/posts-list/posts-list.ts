@@ -12,10 +12,11 @@ import { CommentsService } from '../../services/comments.service';
 import { Modal } from '../../../../shared/components/modal/modal';
 import { ConfirmDialog } from '../../../../shared/components/confirm-dialog/confirm-dialog';
 import { PostForm } from '../../components/post-form/post-form';
+import { TruncatePipe } from '../../../../shared/pipes/truncate-pipe';
 
 @Component({
   selector: 'app-posts-list',
-  imports: [DatePipe, Modal, ConfirmDialog, PostForm],
+  imports: [DatePipe, Modal, ConfirmDialog, PostForm, TruncatePipe],
   templateUrl: './posts-list.html',
 })
 export class PostsList implements OnInit {
