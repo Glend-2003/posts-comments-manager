@@ -11,10 +11,11 @@ import { PostsService } from '../../services/posts.service';
 import { CommentsService } from '../../services/comments.service';
 import { CommentList } from '../../components/comment-list/comment-list';
 import { CommentForm } from '../../components/comment-form/comment-form';
+import { ConfirmDialog } from '../../../../shared/components/confirm-dialog/confirm-dialog';
 
 @Component({
   selector: 'app-post-detail',
-  imports: [DatePipe, RouterLink, CommentList, CommentForm],
+  imports: [DatePipe, RouterLink, CommentList, CommentForm, ConfirmDialog],
   templateUrl: './post-detail.html',
 })
 export class PostDetail {
@@ -30,6 +31,10 @@ export class PostDetail {
 
   readonly comments = signal<Comment[]>([]);
   readonly commentsLoading = signal<boolean>(false);
+
+  // confirmacion para borrar un comentario
+  readonly confirmOpen = signal<boolean>(false);
+  private readonly commentToDelete = signal<Comment | null>(null);
 
   constructor() {
     // aqui se lee el id de la ruta y con switchMap pido el post, si el id cambia, switchMap cancela la petición anterior.
@@ -80,6 +85,16 @@ export class PostDetail {
   }
 
   onDeleteComment(comment: Comment): void {
+    this.commentToDelete.set(comment);
+    this.confirmOpen.set(true);
+  }
+
+  onConfirmDeleteComment(): void {
+    const comment = this.commentToDelete();
+    if (!comment) {
+      return;
+    }
+
     this.commentsService
       .deleteComment(comment._id)
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -87,8 +102,14 @@ export class PostDetail {
         next: () => {
           this.notification.showSuccess('Comentario eliminado.');
           this.comments.update((list) => list.filter((c) => c._id !== comment._id));
+          this.closeConfirm();
         },
-        error: () => {},
+        error: () => this.closeConfirm(),
       });
+  }
+
+  closeConfirm(): void {
+    this.confirmOpen.set(false);
+    this.commentToDelete.set(null);
   }
 }

@@ -106,3 +106,14 @@
     (cancel)="closeModal()"
   />
 </app-modal>
+
+<!-- confirmación de borrado post -->
+<app-confirm-dialog
+  [open]="confirmOpen()"
+  title="Eliminar post"
+  [message]="confirmMessage()"
+  confirmText="Eliminar"
+  [danger]="true"
+  (confirm)="onConfirmDelete()"
+  (cancel)="closeConfirm()"
+/>
