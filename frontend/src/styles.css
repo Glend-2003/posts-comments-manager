@@ -16,6 +16,7 @@
   --color-canvas: #f8fafc; 
   --color-surface: #ffffff;
 
+  /* Estados destructivo */
   --color-danger: #dc2626;
   --color-danger-hover: #b91c1c;
   --color-danger-soft: #fef2f2;
