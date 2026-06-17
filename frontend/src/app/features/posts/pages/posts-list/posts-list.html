@@ -73,7 +73,7 @@
           </tr>
         </thead>
         <tbody class="divide-y divide-line">
-          @for (post of filteredPosts(); track post._id) {
+          @for (post of paginatedPosts(); track post._id) {
             <tr class="group transition-colors duration-150 hover:bg-brand-soft/60">
               <td class="px-6 py-4 align-middle">
                 <span class="font-display font-semibold text-ink">{{ post.title }}</span>
@@ -120,7 +120,7 @@
 
     <!-- ===== Vista en cards para movil ===== -->
     <div class="space-y-3 md:hidden">
-      @for (post of filteredPosts(); track post._id) {
+      @for (post of paginatedPosts(); track post._id) {
         <article class="rounded-xl border border-line bg-surface p-4 shadow-sm">
           <h3 class="font-display text-base font-semibold text-ink">{{ post.title }}</h3>
 
@@ -160,6 +160,47 @@
         </article>
       }
     </div>
+
+    <!-- ===== Controles de paginación si hay mas de 1 pagina -->
+    @if (totalPages() > 1) {
+      <nav class="mt-5 flex items-center justify-between gap-3" aria-label="Paginación">
+        <p class="hidden text-sm text-muted sm:block">
+          Mostrando
+          {{ (currentPage() - 1) * pageSize() + 1 }}–{{ (currentPage() - 1) * pageSize() + paginatedPosts().length }}
+          de {{ filteredPosts().length }}
+        </p>
+
+        <div class="flex w-full items-center justify-between gap-3 sm:w-auto sm:justify-end">
+          <button
+            type="button"
+            (click)="prevPage()"
+            [disabled]="currentPage() === 1"
+            class="btn-secondary px-3 py-1.5 text-xs"
+          >
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" class="h-4 w-4">
+              <path d="M11 5 6 10l5 5" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            Anterior
+          </button>
+
+          <span class="text-sm text-muted">
+            Página <span class="font-medium text-ink">{{ currentPage() }}</span> de {{ totalPages() }}
+          </span>
+
+          <button
+            type="button"
+            (click)="nextPage()"
+            [disabled]="currentPage() === totalPages()"
+            class="btn-secondary px-3 py-1.5 text-xs"
+          >
+            Siguiente
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" class="h-4 w-4">
+              <path d="M9 5l5 5-5 5" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </button>
+        </div>
+      </nav>
+    }
   }
 </section>
 
