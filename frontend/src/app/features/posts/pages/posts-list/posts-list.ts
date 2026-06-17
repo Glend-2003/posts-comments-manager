@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, computed, effect, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
 import { Router } from '@angular/router';
@@ -33,6 +33,21 @@ export class PostsList implements OnInit {
       p.title.toLowerCase().includes(this.search().toLowerCase()),
     ),
   );
+
+  // === Paginacion encima de filteredPosts
+  readonly currentPage = signal<number>(1);
+  readonly pageSize = signal<number>(10);
+
+  // total de paginas segun el resultado ya filtrado 
+  readonly totalPages = computed(() =>
+    Math.max(1, Math.ceil(this.filteredPosts().length / this.pageSize())),
+  );
+
+  // porcion visible, aplica la paginacion sobre filteredPosts
+  readonly paginatedPosts = computed(() => {
+    const start = (this.currentPage() - 1) * this.pageSize();
+    return this.filteredPosts().slice(start, start + this.pageSize());
+  });
 
   // === Estados de ui ===
   readonly loading = signal<boolean>(false);
@@ -79,6 +94,17 @@ export class PostsList implements OnInit {
       )
       // se vuelca el array recibido a la signal posts con set().
       .subscribe((posts) => this.posts.set(posts));
+
+    // Red de seguridad: si tras filtrar o borrar la página actual queda
+    // fuera de rango (ej: estabas en la pág. 3 y ahora solo hay 1), la
+    // recolocamos dentro de [1, totalPages]. Cubre los casos que el reset
+    // explícito de onSearch no abarca (p. ej. borrar el último de una página).
+    effect(() => {
+      const tp = this.totalPages();
+      if (this.currentPage() > tp) {
+        this.currentPage.set(tp);
+      }
+    });
   }
 
   ngOnInit(): void {
@@ -93,6 +119,23 @@ export class PostsList implements OnInit {
   //Actualiza el termino de busqueda filtrado en cliente via computed.
   onSearch(value: string): void {
     this.search.set(value);
+    // al cambiar la búsqueda, volvemos a la primera página para no quedar
+    // en una página que ya no existe tras filtrar
+    this.currentPage.set(1);
+  }
+
+  // navegación de paginación (clamp dentro de rango por seguridad)
+  goToPage(page: number): void {
+    const target = Math.min(Math.max(1, page), this.totalPages());
+    this.currentPage.set(target);
+  }
+
+  prevPage(): void {
+    this.goToPage(this.currentPage() - 1);
+  }
+
+  nextPage(): void {
+    this.goToPage(this.currentPage() + 1);
   }
 
   // consulta cuandos comentarios tiene y abrir un dialogo dependiendo si tiene o no mensajes
