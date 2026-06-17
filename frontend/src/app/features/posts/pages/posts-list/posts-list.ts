@@ -2,7 +2,7 @@ import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angula
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
 import { Router } from '@angular/router';
-import { EMPTY, Subject, catchError, delay, of, switchMap, tap } from 'rxjs';
+import { Subject, catchError, delay, of, switchMap, tap } from 'rxjs';
 
 import { Post } from '../../../../core/models/post.model';
 import { Comment } from '../../../../core/models/comment.model';
@@ -10,11 +10,12 @@ import { NotificationService } from '../../../../core/services/notification.serv
 import { PostsService } from '../../services/posts.service';
 import { CommentsService } from '../../services/comments.service';
 import { Modal } from '../../../../shared/components/modal/modal';
+import { ConfirmDialog } from '../../../../shared/components/confirm-dialog/confirm-dialog';
 import { PostForm } from '../../components/post-form/post-form';
 
 @Component({
   selector: 'app-posts-list',
-  imports: [DatePipe, Modal, PostForm],
+  imports: [DatePipe, Modal, ConfirmDialog, PostForm],
   templateUrl: './posts-list.html',
 })
 export class PostsList implements OnInit {
@@ -42,7 +43,12 @@ export class PostsList implements OnInit {
   readonly modalOpen = signal<boolean>(false);
   readonly editingPost = signal<Post | null>(null);
 
-  // evita doble click en eliminar mientras la operación está en curso
+  // estado del confirmacion de borrrado
+  readonly confirmOpen = signal<boolean>(false);
+  readonly confirmMessage = signal<string>('');
+
+  private readonly postToDelete = signal<Post | null>(null);
+
   readonly deleting = signal<boolean>(false);
 
   constructor() {
@@ -89,38 +95,56 @@ export class PostsList implements OnInit {
     this.search.set(value);
   }
 
-  // Elimina un post avisando cuantos comentarios tiene
+  // consulta cuandos comentarios tiene y abrir un dialogo dependiendo si tiene o no mensajes
   deletePost(post: Post): void {
     if (this.deleting()) {
       return;
     }
-    this.deleting.set(true);
 
-    //1 contamos los comentarios. Si falla, devolvemos null para caer en el un fallback
     this.commentsService
       .getCommentsByPost(post._id)
+      // si falla es nul tira el mensaje de respaldo
       .pipe(
         catchError(() => of(null)),
-        // 2 montamos el mensaje segun el conteo y pedimos confirmacion, si confirma, encadenamos el borrado; si no, se deja em EMPTY   
-        switchMap((comments) => {
-          const confirmado = confirm(this.buildDeleteMessage(post, comments));
-          if (!confirmado) {
-            return EMPTY;
-          }
-          return this.postsService.deletePost(post._id);
-        }),
         takeUntilDestroyed(this.destroyRef),
       )
+      .subscribe((comments) => {
+        this.postToDelete.set(post);
+        this.confirmMessage.set(this.buildDeleteMessage(post, comments));
+        this.confirmOpen.set(true);
+      });
+  }
+
+  // Cuando el usuario confirma el dialogo se procede a borrar 
+  onConfirmDelete(): void {
+    const post = this.postToDelete();
+    if (!post || this.deleting()) {
+      return;
+    }
+    this.deleting.set(true);
+
+    this.postsService
+      .deletePost(post._id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.notification.showSuccess('Post eliminado correctamente.');
           this.loadPosts();
+          this.closeConfirm();
           this.deleting.set(false);
         },
-        error: () => this.deleting.set(false),
-        // se completa sin emitir cuando el usuario cancela 
-        complete: () => this.deleting.set(false),
+        error: () => {
+          this.closeConfirm();
+          this.deleting.set(false);
+        },
       });
+  }
+
+  // Cancelar sin borrar
+  closeConfirm(): void {
+    this.confirmOpen.set(false);
+    this.postToDelete.set(null);
+    this.confirmMessage.set('');
   }
 
   // Mensaje diferenciado: comments null = no se pudo contar

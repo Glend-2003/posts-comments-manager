@@ -11,13 +11,6 @@ import { Comment } from '../../../../core/models/comment.model';
 export class CommentList {
   readonly comments = input<Comment[]>([]);
 
-  // dejo que el padre haga el deleteComment de verdad
+  //la pagina de detalle confirma y hace el borrado de verdad
   readonly delete = output<Comment>();
-
-  onDelete(comment: Comment): void {
-    const ok = confirm(`¿Eliminar el comentario de ${comment.name}?`);
-    if (ok) {
-      this.delete.emit(comment);
-    }
-  }
 }

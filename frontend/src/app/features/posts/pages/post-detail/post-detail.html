@@ -45,3 +45,14 @@
     </div>
   }
 </section>
+
+<!-- confirmación de borrado de comentario -->
+<app-confirm-dialog
+  [open]="confirmOpen()"
+  title="Eliminar comentario"
+  message="¿Eliminar este comentario? Esta acción no se puede deshacer."
+  confirmText="Eliminar"
+  [danger]="true"
+  (confirm)="onConfirmDeleteComment()"
+  (cancel)="closeConfirm()"
+/>
