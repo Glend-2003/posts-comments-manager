@@ -93,3 +93,16 @@
     </div>
   }
 </section>
+
+<!-- modal de crear/editar post -->
+<app-modal
+  [open]="modalOpen()"
+  [title]="editingPost() ? 'Editar post' : 'Nuevo post'"
+  (close)="closeModal()"
+>
+  <app-post-form
+    [post]="editingPost()"
+    (saved)="onSaved()"
+    (cancel)="closeModal()"
+  />
+</app-modal>

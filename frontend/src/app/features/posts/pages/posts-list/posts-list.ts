@@ -6,10 +6,12 @@ import { Subject, catchError, delay, of, switchMap, tap } from 'rxjs';
 import { Post } from '../../../../core/models/post.model';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { PostsService } from '../../services/posts.service';
+import { Modal } from '../../../../shared/components/modal/modal';
+import { PostForm } from '../../components/post-form/post-form';
 
 @Component({
   selector: 'app-posts-list',
-  imports: [DatePipe],
+  imports: [DatePipe, Modal, PostForm],
   templateUrl: './posts-list.html',
 })
 export class PostsList implements OnInit {
@@ -30,6 +32,10 @@ export class PostsList implements OnInit {
   readonly loading = signal<boolean>(false);
   readonly loaded = signal<boolean>(false);
   private readonly reload$ = new Subject<void>();
+
+  // estado del modal: si esta abierto y qué post edito (null = crear)
+  readonly modalOpen = signal<boolean>(false);
+  readonly editingPost = signal<Post | null>(null);
 
   constructor() {
     // Tuberia reactiva de carga. Se suscribe una sola vez (vive lo que viva el componente, gracias a takeUntilDestroyed) y reacciona a cada reload$.
@@ -94,16 +100,29 @@ export class PostsList implements OnInit {
       });
   }
 
-  // Placeholders: para proxima funcion
-  viewPost(post: Post): void {
-    // TODO: navegar a la pagina de detalle, para proxima funcion
-  }
-
-  editPost(post: Post): void {
-    // TODO: abrir modal de edicion, para proxima funcion
-  }
-
+  // abrir modal en modo crear
   addPost(): void {
-    // TODO: abrir modal de creacion, para proxima funcion
+    this.editingPost.set(null);
+    this.modalOpen.set(true);
   }
+
+  // abrir modal en modo editar con el post de la fila
+  editPost(post: Post): void {
+    this.editingPost.set(post);
+    this.modalOpen.set(true);
+  }
+
+  closeModal(): void {
+    this.modalOpen.set(false);
+    this.editingPost.set(null);
+  }
+
+  // el formulario termino: cierro y recargo
+  onSaved(): void {
+    this.closeModal();
+    this.loadPosts();
+  }
+
+  // TODO: navegar a la pagina de detalle, para proxima funcion
+  viewPost(post: Post): void {}
 }
