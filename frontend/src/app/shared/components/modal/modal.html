@@ -1,21 +1,21 @@
 @if (open()) {
   <!-- overlayclick fuera para cerrar -->
   <div
-    class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 p-4 backdrop-blur-sm"
     (click)="onClose()"
   >
     <!-- panel: stopPropagation para que el click dentro no cierre -->
     <div
-      class="w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-xl"
+      class="w-full max-w-lg overflow-hidden rounded-2xl border border-line bg-surface shadow-xl"
       (click)="$event.stopPropagation()"
     >
-      <header class="flex items-center justify-between border-b border-slate-100 px-5 py-4">
-        <h2 class="text-lg font-semibold text-slate-800">{{ title() }}</h2>
+      <header class="flex items-center justify-between border-b border-line px-5 py-4">
+        <h2 class="text-lg font-semibold text-ink">{{ title() }}</h2>
         <button
           type="button"
           (click)="onClose()"
           aria-label="Cerrar"
-          class="rounded-md p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
+          class="rounded-md p-1 text-muted transition hover:bg-canvas hover:text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-brand"
         >
           <span class="block h-5 w-5 text-center text-lg leading-5">&times;</span>
         </button>

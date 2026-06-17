@@ -1,87 +1,113 @@
-<section class="mx-auto max-w-5xl px-4 py-8">
-  <!-- encabezado/titulo -->
-  <header class="mb-6 flex items-center justify-between gap-4">
+<section class="mx-auto max-w-5xl px-4 py-10">
+  <!-- cabecera de sección: enmarca la pantalla -->
+  <header class="mb-8 flex flex-wrap items-end justify-between gap-4 border-b border-line pb-6">
     <div>
-      <h1 class="text-2xl font-semibold text-slate-800">Posts</h1>
-      <p class="text-sm text-slate-500">Gestiona las publicaciones y sus comentarios.</p>
+      <h1 class="text-3xl font-semibold tracking-tight text-ink">Gestión de posts</h1>
+      <p class="mt-1.5 text-sm text-muted">
+        Crea, edita y administra las publicaciones y sus comentarios.
+      </p>
     </div>
-    <button
-      type="button"
-      (click)="addPost()"
-      class="inline-flex items-center gap-2 rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-400"
-    >
-      <span class="text-base leading-none">+</span>
+    <button type="button" (click)="addPost()" class="btn-primary">
+      <svg viewBox="0 0 20 20" fill="currentColor" class="h-4 w-4">
+        <path d="M10 4a1 1 0 0 1 1 1v4h4a1 1 0 1 1 0 2h-4v4a1 1 0 1 1-2 0v-4H5a1 1 0 1 1 0-2h4V5a1 1 0 0 1 1-1Z" />
+      </svg>
       Agregar post
     </button>
   </header>
 
-  <!-- busqueda de posts -->
-  <div class="mb-4">
-    <input
-      type="search"
-      [value]="search()"
-      (input)="onSearch($any($event.target).value)"
-      placeholder="Buscar por título…"
-      class="w-full rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm text-slate-700 shadow-sm transition placeholder:text-slate-400 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 sm:max-w-xs"
-    />
+  <!-- barra: buscador equilibrado con el contador -->
+  <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
+    <div class="relative w-full sm:max-w-xs">
+      <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" class="h-4 w-4">
+          <circle cx="9" cy="9" r="6" />
+          <path d="m17 17-3.5-3.5" stroke-linecap="round" />
+        </svg>
+      </span>
+      <input
+        type="search"
+        [value]="search()"
+        (input)="onSearch($any($event.target).value)"
+        placeholder="Buscar por título…"
+        class="field pl-9"
+      />
+    </div>
+
+    <!-- contador discreto -->
+    <p class="text-sm text-muted">
+      @if (search().trim().length > 0) {
+        Mostrando {{ filteredPosts().length }} de {{ posts().length }}
+      } @else {
+        {{ posts().length }} {{ posts().length === 1 ? 'post' : 'posts' }}
+      }
+    </p>
   </div>
 
   <!-- el loading -->
   @if (loading()) {
-    <div class="flex flex-col items-center justify-center gap-3 rounded-xl border border-slate-200 bg-white py-16 text-slate-500">
-      <span class="h-8 w-8 animate-spin rounded-full border-2 border-slate-300 border-t-slate-700"></span>
+    <div class="flex flex-col items-center justify-center gap-3 rounded-xl border border-line bg-surface py-20 text-muted shadow-sm">
+      <span class="h-8 w-8 animate-spin rounded-full border-2 border-line border-t-brand"></span>
       <span class="text-sm">Cargando posts…</span>
     </div>
   } @else if (filteredPosts().length === 0) {
     <!--en caso de vacio se diferencia entre "sin resultados de busqueda" de "no hay posts" -->
-    <div class="rounded-xl border border-dashed border-slate-300 bg-white py-16 text-center">
+    <div class="rounded-xl border border-dashed border-line bg-surface py-20 text-center shadow-sm">
       @if (search().trim().length > 0) {
-        <p class="text-sm font-medium text-slate-600">No se encontraron resultados</p>
-        <p class="mt-1 text-sm text-slate-400">Prueba con otro término de búsqueda.</p>
+        <p class="font-display text-base font-medium text-ink">No se encontraron resultados</p>
+        <p class="mt-1 text-sm text-muted">Prueba con otro término de búsqueda.</p>
       } @else {
-        <p class="text-sm font-medium text-slate-600">No hay posts todavía</p>
-        <p class="mt-1 text-sm text-slate-400">Crea el primero con “Agregar post”.</p>
+        <p class="font-display text-base font-medium text-ink">No hay posts todavía</p>
+        <p class="mt-1 text-sm text-muted">Crea el primero con “Agregar post”.</p>
       }
     </div>
   } @else {
-    <!-- tabla de posts -->
-    <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-      <table class="min-w-full divide-y divide-slate-200 text-sm">
-        <thead class="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-          <tr>
-            <th class="px-4 py-3">Título</th>
-            <th class="px-4 py-3">Autor</th>
-            <th class="px-4 py-3">Fecha</th>
-            <th class="px-4 py-3 text-right">Acciones</th>
+    <!-- ===== VISTA TABLA (md y arriba) ===== -->
+    <div class="hidden overflow-hidden rounded-xl border border-line bg-surface shadow-sm ring-1 ring-ink/5 md:block">
+      <table class="min-w-full text-sm">
+        <thead>
+          <tr class="border-b border-line bg-canvas text-left text-xs font-semibold uppercase tracking-wider text-muted">
+            <th class="px-6 py-4">Título</th>
+            <th class="px-6 py-4">Autor</th>
+            <th class="px-6 py-4">Fecha</th>
+            <th class="px-6 py-4 text-right">Acciones</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-slate-100">
+        <tbody class="divide-y divide-line">
           @for (post of filteredPosts(); track post._id) {
-            <tr class="transition hover:bg-slate-50">
-              <td class="px-4 py-3 font-medium text-slate-800">{{ post.title }}</td>
-              <td class="px-4 py-3 text-slate-600">{{ post.author }}</td>
-              <td class="px-4 py-3 text-slate-500">{{ post.createdAt | date: 'dd MMM yyyy, HH:mm' }}</td>
-              <td class="px-4 py-3">
-                <div class="flex items-center justify-end gap-2">
-                  <button
-                    type="button"
-                    (click)="viewPost(post)"
-                    class="rounded-md px-2.5 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-100"
-                  >
+            <tr class="group transition-colors duration-150 hover:bg-brand-soft/60">
+              <td class="px-6 py-4 align-middle">
+                <span class="font-display font-semibold text-ink">{{ post.title }}</span>
+              </td>
+              <td class="px-6 py-4 align-middle">
+                <span class="inline-flex items-center gap-2.5">
+                  <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-soft text-xs font-semibold uppercase text-brand">
+                    {{ post.author.charAt(0) }}
+                  </span>
+                  <span class="text-sm text-muted">{{ post.author }}</span>
+                </span>
+              </td>
+              <td class="px-6 py-4 align-middle text-sm tabular-nums text-muted">
+                {{ post.createdAt | date: 'd MMM y' }}
+              </td>
+              <td class="px-6 py-4 align-middle">
+                <div class="flex items-center justify-end gap-1">
+                  <button type="button" (click)="viewPost(post)" class="btn-ghost" aria-label="Ver post">
+                    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" class="h-4 w-4">
+                      <path d="M1.5 10S4.5 4.5 10 4.5 18.5 10 18.5 10 15.5 15.5 10 15.5 1.5 10 1.5 10Z" />
+                      <circle cx="10" cy="10" r="2.2" />
+                    </svg>
                     Ver
                   </button>
-                  <button
-                    type="button"
-                    (click)="editPost(post)"
-                    class="rounded-md px-2.5 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-100"
-                  >
+                  <button type="button" (click)="editPost(post)" class="btn-ghost" aria-label="Editar post">
+                    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" class="h-4 w-4">
+                      <path d="M13.5 3.5 16.5 6.5 7 16l-3.5.5L4 13 13.5 3.5Z" stroke-linejoin="round" />
+                    </svg>
                     Editar
                   </button>
-                  <button
-                    type="button"
-                    (click)="deletePost(post)"
-                    class="rounded-md px-2.5 py-1.5 text-xs font-medium text-red-600 transition hover:bg-red-50"
-                  >
+                  <button type="button" (click)="deletePost(post)" class="btn-ghost-danger" aria-label="Eliminar post">
+                    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" class="h-4 w-4">
+                      <path d="M4 6h12M8 6V4h4v2m-6 0 .5 9h7l.5-9" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
                     Eliminar
                   </button>
                 </div>
@@ -90,6 +116,49 @@
           }
         </tbody>
       </table>
+    </div>
+
+    <!-- ===== Vista en cards para movil ===== -->
+    <div class="space-y-3 md:hidden">
+      @for (post of filteredPosts(); track post._id) {
+        <article class="rounded-xl border border-line bg-surface p-4 shadow-sm">
+          <h3 class="font-display text-base font-semibold text-ink">{{ post.title }}</h3>
+
+          <div class="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-muted">
+            <span class="inline-flex items-center gap-2">
+              <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-soft text-xs font-semibold uppercase text-brand">
+                {{ post.author.charAt(0) }}
+              </span>
+              {{ post.author }}
+            </span>
+            <span class="text-line">·</span>
+            <span class="tabular-nums">{{ post.createdAt | date: 'd MMM y' }}</span>
+          </div>
+
+          <!-- las 3 acciones en movil -->
+          <div class="mt-4 grid grid-cols-3 gap-2 border-t border-line pt-3">
+            <button type="button" (click)="viewPost(post)" class="btn-ghost justify-center py-2">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" class="h-4 w-4">
+                <path d="M1.5 10S4.5 4.5 10 4.5 18.5 10 18.5 10 15.5 15.5 10 15.5 1.5 10 1.5 10Z" />
+                <circle cx="10" cy="10" r="2.2" />
+              </svg>
+              Ver
+            </button>
+            <button type="button" (click)="editPost(post)" class="btn-ghost justify-center py-2">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" class="h-4 w-4">
+                <path d="M13.5 3.5 16.5 6.5 7 16l-3.5.5L4 13 13.5 3.5Z" stroke-linejoin="round" />
+              </svg>
+              Editar
+            </button>
+            <button type="button" (click)="deletePost(post)" class="btn-ghost-danger justify-center py-2">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" class="h-4 w-4">
+                <path d="M4 6h12M8 6V4h4v2m-6 0 .5 9h7l.5-9" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+              Eliminar
+            </button>
+          </div>
+        </article>
+      }
     </div>
   }
 </section>
