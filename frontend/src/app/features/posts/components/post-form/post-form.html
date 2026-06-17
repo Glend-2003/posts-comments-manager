@@ -1,0 +1,54 @@
+<form [formGroup]="form" (ngSubmit)="submit()" class="space-y-4">
+  <!-- Titulo -->
+  <div>
+    <label for="title" class="field-label">Título</label>
+    <input id="title" type="text" formControlName="title" class="field" />
+    @if (showError('title')) {
+      <p class="field-error">
+        @if (form.get('title')?.errors?.['required']) {
+          El título es obligatorio
+        } @else if (form.get('title')?.errors?.['minlength']) {
+          El título debe tener al menos 3 caracteres
+        }
+      </p>
+    }
+  </div>
+
+  <!-- Cuerpo -->
+  <div>
+    <label for="body" class="field-label">Contenido</label>
+    <textarea id="body" rows="4" formControlName="body" class="field"></textarea>
+    @if (showError('body')) {
+      <p class="field-error">
+        @if (form.get('body')?.errors?.['required']) {
+          El contenido es obligatorio
+        } @else if (form.get('body')?.errors?.['minlength']) {
+          El contenido debe tener al menos 10 caracteres
+        }
+      </p>
+    }
+  </div>
+
+  <!-- Autor -->
+  <div>
+    <label for="author" class="field-label">Autor</label>
+    <input id="author" type="text" formControlName="author" class="field" />
+    @if (showError('author')) {
+      <p class="field-error">El autor es obligatorio</p>
+    }
+  </div>
+
+  <!-- Acciones -->
+  <div class="flex items-center justify-end gap-2 pt-2">
+    <button type="button" (click)="cancel.emit()" class="btn-secondary">
+      Cancelar
+    </button>
+    <button type="submit" [disabled]="form.invalid || saving()" class="btn-primary">
+      @if (saving()) {
+        Guardando…
+      } @else {
+        {{ isEdit() ? 'Guardar cambios' : 'Crear' }}
+      }
+    </button>
+  </div>
+</form>

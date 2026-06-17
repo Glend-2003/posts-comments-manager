@@ -1,0 +1,52 @@
+<form [formGroup]="form" (ngSubmit)="submit()" class="space-y-3 rounded-2xl border border-line bg-surface p-4 shadow-sm">
+  <div class="grid gap-3 sm:grid-cols-2">
+    <!-- Nombre -->
+    <div>
+      <label for="name" class="field-label">Nombre</label>
+      <input id="name" type="text" formControlName="name" class="field" />
+      @if (showError('name')) {
+        <p class="field-error">El nombre es obligatorio</p>
+      }
+    </div>
+
+    <!-- Email -->
+    <div>
+      <label for="email" class="field-label">Email</label>
+      <input id="email" type="email" formControlName="email" class="field" />
+      @if (showError('email')) {
+        <p class="field-error">
+          @if (form.get('email')?.errors?.['required']) {
+            El email es obligatorio
+          } @else if (form.get('email')?.errors?.['email']) {
+            Introduce un email válido
+          }
+        </p>
+      }
+    </div>
+  </div>
+
+  <!-- Comentario -->
+  <div>
+    <label for="body" class="field-label">Comentario</label>
+    <textarea id="body" rows="3" formControlName="body" class="field"></textarea>
+    @if (showError('body')) {
+      <p class="field-error">
+        @if (form.get('body')?.errors?.['required']) {
+          El comentario es obligatorio
+        } @else if (form.get('body')?.errors?.['minlength']) {
+          El comentario es demasiado corto
+        }
+      </p>
+    }
+  </div>
+
+  <div class="flex justify-end">
+    <button type="submit" [disabled]="form.invalid || saving()" class="btn-primary">
+      @if (saving()) {
+        Enviando…
+      } @else {
+        Comentar
+      }
+    </button>
+  </div>
+</form>

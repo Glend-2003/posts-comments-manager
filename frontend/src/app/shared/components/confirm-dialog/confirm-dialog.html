@@ -1,0 +1,16 @@
+<app-modal [open]="open()" [title]="title()" (close)="onClose()">
+  <p class="text-sm leading-relaxed text-muted">{{ message() }}</p>
+
+  <div class="mt-6 flex items-center justify-end gap-2">
+    <button type="button" (click)="cancel.emit()" class="btn-secondary">
+      {{ cancelText() }}
+    </button>
+    <button
+      type="button"
+      (click)="confirm.emit()"
+      [class]="danger() ? 'btn-danger' : 'btn-primary'"
+    >
+      {{ confirmText() }}
+    </button>
+  </div>
+</app-modal>

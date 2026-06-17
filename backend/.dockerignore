@@ -1,0 +1,26 @@
+# Dependencias y build 
+node_modules
+dist
+
+# Secretos y entorno: se inyectan por compose
+.env
+.env.*
+!.env.example
+
+# Control de versiones y metadatos
+.git
+.gitignore
+
+# Logs y artefactos
+*.log
+npm-debug.log*
+coverage
+
+# Editor / SO
+.vscode
+.idea
+.DS_Store
+
+# Docker
+Dockerfile
+.dockerignore
