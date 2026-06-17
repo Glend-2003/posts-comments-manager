@@ -1,0 +1,29 @@
+@if (open()) {
+  <!-- overlayclick fuera para cerrar -->
+  <div
+    class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4"
+    (click)="onClose()"
+  >
+    <!-- panel: stopPropagation para que el click dentro no cierre -->
+    <div
+      class="w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-xl"
+      (click)="$event.stopPropagation()"
+    >
+      <header class="flex items-center justify-between border-b border-slate-100 px-5 py-4">
+        <h2 class="text-lg font-semibold text-slate-800">{{ title() }}</h2>
+        <button
+          type="button"
+          (click)="onClose()"
+          aria-label="Cerrar"
+          class="rounded-md p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
+        >
+          <span class="block h-5 w-5 text-center text-lg leading-5">&times;</span>
+        </button>
+      </header>
+
+      <div class="px-5 py-5">
+        <ng-content />
+      </div>
+    </div>
+  </div>
+}
