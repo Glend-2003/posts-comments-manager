@@ -8,5 +8,16 @@ services:
     volumes:
       - mongo_data:/data/db
 
+  backend:
+    build: ./backend
+    container_name: posts-comments-backend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mongodb
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017/posts_comments_db
+
 volumes:
   mongo_data:
