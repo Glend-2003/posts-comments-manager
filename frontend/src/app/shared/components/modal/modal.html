@@ -1,13 +1,11 @@
 @if (open()) {
-  <!-- overlayclick fuera para cerrar -->
   <div
     class="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 p-4 backdrop-blur-sm"
-    (click)="onClose()"
+    (mousedown)="onOverlayMouseDown($event)"
+    (mouseup)="onOverlayMouseUp($event)"
   >
-    <!-- panel: stopPropagation para que el click dentro no cierre -->
     <div
       class="w-full max-w-lg overflow-hidden rounded-2xl border border-line bg-surface shadow-xl"
-      (click)="$event.stopPropagation()"
     >
       <header class="flex items-center justify-between border-b border-line px-5 py-4">
         <h2 class="text-lg font-semibold text-ink">{{ title() }}</h2>
