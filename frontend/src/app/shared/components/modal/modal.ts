@@ -11,12 +11,28 @@ export class Modal {
 
   readonly close = output<void>();
 
+
+  private pointerDownOnOverlay = false;
+
   // cierro tambien con Escape
   @HostListener('document:keydown.escape')
   onEscape(): void {
     if (this.open()) {
       this.close.emit();
     }
+  }
+
+
+  onOverlayMouseDown(event: MouseEvent): void {
+    this.pointerDownOnOverlay = event.target === event.currentTarget;
+  }
+
+
+  onOverlayMouseUp(event: MouseEvent): void {
+    if (this.pointerDownOnOverlay && event.target === event.currentTarget) {
+      this.close.emit();
+    }
+    this.pointerDownOnOverlay = false;
   }
 
   onClose(): void {

@@ -61,7 +61,7 @@
       }
     </div>
   } @else {
-    <!-- ===== VISTA TABLA (md y arriba) ===== -->
+    
     <div class="hidden overflow-hidden rounded-xl border border-line bg-surface shadow-sm ring-1 ring-ink/5 md:block">
       <table class="min-w-full text-sm">
         <thead>
@@ -214,11 +214,14 @@
   [title]="editingPost() ? 'Editar post' : 'Nuevo post'"
   (close)="closeModal()"
 >
-  <app-post-form
-    [post]="editingPost()"
-    (saved)="onSaved()"
-    (cancel)="closeModal()"
-  />
+
+  @if (modalOpen()) {
+    <app-post-form
+      [post]="editingPost()"
+      (saved)="onSaved()"
+      (cancel)="closeModal()"
+    />
+  }
 </app-modal>
 
 <!-- confirmación de borrado post -->

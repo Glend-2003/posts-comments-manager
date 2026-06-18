@@ -75,6 +75,40 @@ curl -X POST http://localhost:3000/posts/bulk \
 
 Recarga el frontend y verás los posts cargados.
 
+## Capturas y video
+
+Video demostrativo del funcionamiento: https://youtu.be/I06DCzauZTY
+
+### Listado de posts
+![Listado de posts](docs/capturas/Listado-Posts.png)
+
+### Búsqueda de posts
+![Búsqueda de posts](docs/capturas/Busqueda-Posts.png)
+
+### Agregar un post
+![Agregar post](docs/capturas/Agregar-Posts.png)
+
+### Editar un post
+![Editar post](docs/capturas/Editar-Posts.png)
+
+### Eliminar un post
+![Eliminar post](docs/capturas/Eliminar-Posts.png)
+
+### Detalle del post y agregar comentarios
+![Detalle del post y comentarios](docs/capturas/Ver-Detalles-Post-Y-Agregar-Comentarios.png)
+
+### Agregar un comentario
+![Agregar comentario](docs/capturas/Agregar-Comentario.png)
+
+### Eliminar un comentario
+![Eliminar comentario](docs/capturas/Eliminar-Comentario.png)
+
+### Alertas y notificaciones
+![Alerta al crear post](docs/capturas/Alertas-Posts.png)
+![Alerta al actualizar post](docs/capturas/Alertas-Posts-aCTUALIZADOS.png)
+![Alerta al eliminar post](docs/capturas/Alertas-Posts-Eliminados.png)
+![Alerta al eliminar comentario](docs/capturas/Alertas-Comentarios-Eliminados.png)
+
 ## Entregables / Recursos
 
 - **Datos de ejemplo (carga masiva):** `docs/example-posts.json`.
